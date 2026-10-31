@@ -1,0 +1,204 @@
+{
+  "zhuroupo": [
+    {
+      "cid": "dabing",
+      "name": "大兵探店",
+      "platform": "bilibili",
+      "title": "顺德最出名餐饮店，猪肉婆私房菜，她真能代表顺德私房菜天花板？",
+      "url": "https://www.bilibili.com/video/BV1hD4y117hT",
+      "publishDate": "2022-09-27",
+      "evidence": "confidently",
+      "quote": "视频简介原话：猪肉婆私房菜是顺德一家久负盛名的餐饮名店，创立于2009年……发展至今猪肉婆已经是一个响当当的餐饮品牌",
+      "note": "标题直接点名；约 4.1 万播放，是这一轮里数据最冷的一条"
+    },
+    {
+      "cid": "tangrenjie",
+      "name": "真探唐仁杰",
+      "platform": "bilibili",
+      "title": "广东顺德.猪肉婆 厨子探店¥129？",
+      "url": "https://www.bilibili.com/video/BV1zY4y1N7YJ",
+      "publishDate": "2022-09-26",
+      "evidence": "confidently",
+      "quote": "视频标题原话：广东顺德.猪肉婆 厨子探店¥129？",
+      "note": "287.8 万播放；动态原文「顺德老字号私房菜，无数网友私信我」"
+    }
+  ],
+  "rongbian": [
+    {
+      "cid": "dage",
+      "name": "达哥在上海",
+      "platform": "bilibili",
+      "title": "在广东顺德蓉边村里吃12元一盘的干煸排骨饭，偏咸酱汁但配饭嘎嘎香，全是街坊烟火味！#顺德美食#干逼排骨#蓉边排骨饭#顺德排骨饭",
+      "url": "https://www.bilibili.com/video/BV1zS7D6XEnq",
+      "publishDate": "2026-06-06",
+      "evidence": "confidently",
+      "quote": "标题原文：在广东顺德蓉边村里吃12元一盘的干煸排骨饭……#蓉边排骨饭",
+      "note": "标题把「容边」写作「蓉边」；12 元一碟，与大兵 2022 年的 14 元形成对照"
+    }
+  ],
+  "shuixiantou": [
+    {
+      "cid": "dabing",
+      "name": "大兵探店",
+      "platform": "bilibili",
+      "title": "顺德排名第一的私房菜，独栋别墅挤满顺德土著，火爆程度大开眼界",
+      "url": "https://www.bilibili.com/video/BV1K24y197mj",
+      "publishDate": "2022-10-04",
+      "evidence": "confidently",
+      "quote": "视频简介原话：水仙头私房菜是顺德大良一家知名度高，人气非常火爆的私房菜馆",
+      "note": "简介写「顺德大良」，与数据里 area=容桂 对不上 ?? 需核"
+    }
+  ],
+  "damengong": [
+    {
+      "cid": "dabing",
+      "name": "大兵探店",
+      "platform": "bilibili",
+      "title": "顺德人都排队吃的餐馆，豪华大院挤满顺德土著，火爆程度大开眼界",
+      "url": "https://www.bilibili.com/video/BV1AV4y157ki",
+      "publishDate": "2022-10-20",
+      "evidence": "confidently",
+      "quote": "视频简介原话：大门公饭店传统顺德菜是顺德一家人气非常火爆的老牌饭店",
+      "note": "标题不带店名、简介点名；这条不在他的「佛山顺德探店」合集里，是另外搜出来的"
+    },
+    {
+      "cid": "pinchengji",
+      "name": "品城记Video",
+      "platform": "bilibili",
+      "title": "【品城记】今天要带SNH48的小姐姐去吃顺德菜，不知道她会不会喜欢呢？",
+      "url": "https://www.bilibili.com/video/BV1Vs411F7tA",
+      "publishDate": "2018-08-27",
+      "evidence": "confidently",
+      "quote": "视频简介原话：考虑再三，大秋最终选择了顺德一家叫大门公的餐厅",
+      "note": "比唐仁杰那条早 4 年，是这道店里最早的博主记录"
+    }
+  ],
+  "shaoezai": [
+    {
+      "cid": "tangrenjie",
+      "name": "真探唐仁杰",
+      "platform": "bilibili",
+      "title": "广东顺德.烧鹅再  厨子探店¥320",
+      "url": "https://www.bilibili.com/video/BV1QW4y1v7TP",
+      "publishDate": "2022-09-27",
+      "evidence": "probably",
+      "quote": "视频标题原话：广东顺德.烧鹅再  厨子探店¥320",
+      "note": "标题只写「烧鹅再」，没说总店/大良店；数据这家是「大良店」 ?? 需核"
+    },
+    {
+      "cid": "dabing",
+      "name": "大兵探店",
+      "platform": "bilibili",
+      "title": "顺德烧鹅性价比之王，现烧现吃皮脆肉滑汁水四溢，吸引众多食客",
+      "url": "https://www.bilibili.com/video/BV1HG4y1x7Ff",
+      "publishDate": "2022-10-01",
+      "evidence": "probably",
+      "quote": "视频简介原话：烧鹅再是顺德一家人气火爆的饭店……烧鹅现场烧制，皮脆肉滑汁水丰富",
+      "note": "同上，简介未写哪家分店"
+    }
+  ],
+  "huangliandatouhua": [
+    {
+      "cid": "dabing",
+      "name": "大兵探店",
+      "platform": "bilibili",
+      "title": "顺德美食之都的脸都被你丢尽可，曾被誉为第一烧鹅，现出品差且贵得离谱",
+      "url": "https://www.bilibili.com/video/BV1te4y1B7bD",
+      "publishDate": "2022-09-30",
+      "evidence": "confidently",
+      "quote": "视频简介原话：黄连大头华烧鹅是顺德一家颇有名气的店……成名之后价格水涨船高，且出品水准较以前下降很多",
+      "note": "差评向，别只当推荐看"
+    }
+  ],
+  "shunderenjia": [
+    {
+      "cid": "dabing",
+      "name": "大兵探店",
+      "platform": "bilibili",
+      "title": "顺德性价比最高的茶楼，早茶比广州实惠太多了，人山人海场面火爆",
+      "url": "https://www.bilibili.com/video/BV1Ae4y167RK",
+      "publishDate": "2022-10-06",
+      "evidence": "probably",
+      "quote": "视频简介原话：顺德人家食府是顺德一家老字号酒楼……主要做粤菜，包括茶市和饭市",
+      "note": "简介写「顺德人家食府」，数据是「顺德人家（太艮路店）」，是否同一家未核 ??"
+    }
+  ],
+  "hongxing": [
+    {
+      "cid": "dabing",
+      "name": "大兵探店",
+      "platform": "bilibili",
+      "title": "被誉为顺德顶级煲仔饭，始创于1984年，独栋楼房全部坐满顺德人",
+      "url": "https://www.bilibili.com/video/BV1hg411h79S",
+      "publishDate": "2022-10-09",
+      "evidence": "confidently",
+      "quote": "视频简介原话：红星光发煲仔饭是佛山顺德一家人气火爆的老字号煲仔饭店，始创于1984年",
+      "note": "简介没写总店/分店；数据这家是「总店」 ??"
+    }
+  ],
+  "minxin": [
+    {
+      "cid": "dabing",
+      "name": "大兵探店",
+      "platform": "bilibili",
+      "title": "一个人可以吃10碗，顺德顶级甜品，始创于1925年没想到这么实惠",
+      "url": "https://www.bilibili.com/video/BV1nv4y1U7qb",
+      "publishDate": "2022-11-21",
+      "evidence": "probably",
+      "quote": "视频简介原话：民信老铺是顺德的一家老字号甜品店，始创于1925年",
+      "note": "只写「民信老铺」，没写哪家分店；数据这家是华盖路店 ??"
+    }
+  ],
+  "jufu": [
+    {
+      "cid": "dabing",
+      "name": "大兵探店",
+      "platform": "bilibili",
+      "title": "在顺德，这一家几乎没对手",
+      "url": "https://www.bilibili.com/video/BV1bm411f7vU",
+      "publishDate": "2024-02-27",
+      "evidence": "confidently",
+      "quote": "视频简介原话：探店顺德著名的聚福山庄，超多顺德本地人推荐这里，豪华气派，热闹非凡",
+      "note": "标题不带店名、简介点名"
+    }
+  ],
+  "dadi": [
+    {
+      "cid": "dabing",
+      "name": "大兵探店",
+      "platform": "bilibili",
+      "title": "火爆程度大开眼界，顺德排名第一火焰醉鹅，藏于市场内但食客爆满",
+      "url": "https://www.bilibili.com/video/BV1te411G76A",
+      "publishDate": "2022-10-31",
+      "evidence": "probably",
+      "quote": "视频简介原话：大地农庄是顺德一家人气火爆的农庄……招牌火焰醉鹅远近闻名",
+      "note": "简介写「大地农庄」，数据是「大地醉鹅」，是否同一家未核 ??"
+    }
+  ],
+  "rongli": [
+    {
+      "cid": "dage",
+      "name": "达哥在上海",
+      "platform": "bilibili",
+      "title": "在广东顺德容里社区吃本地人私藏煲仔饭，香肠 排骨 牛肚 板筋都巨惊艳！还有佛山凉茶 凉粉步步糕#煲仔饭#顺德煲仔饭#广东美食#顺德美食#凉茶",
+      "url": "https://www.bilibili.com/video/BV1Htji6mE2w",
+      "publishDate": "2026-06-19",
+      "evidence": "probably",
+      "quote": "标题原文：在广东顺德容里社区吃本地人私藏煲仔饭……",
+      "note": "标题只给社区名、没点店名；按「容里社区 + 煲仔饭」对到容里煲仔饭"
+    }
+  ],
+  "shundepo": [
+    {
+      "cid": "pinchengji",
+      "name": "品城记本地版",
+      "platform": "bilibili",
+      "title": "【品城记】当顺德鱼生遇上日本三文鱼，会捞出怎么样的火花？",
+      "url": "https://www.bilibili.com/video/BV1vA411w7Fo",
+      "publishDate": "2021-08-11",
+      "evidence": "probably",
+      "quote": "视频动态原文：今日，带大家来到获得过黑珍珠餐厅的【顺德婆私房菜】",
+      "note": "发在子账号「品城记本地版」（UID 429582883），不是 CREATORS 里的 UID 35364728；动态说「黑珍珠」，数据这家是「伦教三洲店」，是否同一分店未核 ??"
+    }
+  ]
+}

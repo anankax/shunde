@@ -1,0 +1,8 @@
+# 抓图过程中的中间产物：原始大图、拼图预览、浏览器配置（含登录态，绝不能上传）
+_staging/
+_research/
+
+# 一次性脚本，里面写死了高德 key，不入库
+_q.mjs
+_build_final.py
+_mk_sheets.py

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<title>顺德寻味地图 · 吃在广州，厨出凤城</title>
+<meta name="description" content="顺德美食地图：52 家本地老店、街边神店与干蒸排骨专门店，含 2025 大众点评必吃榜顺德区 15 家全部落点，标注每家被哪些博主探过、是否上榜，附抖音 / B站视频。" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+<link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+
+<!-- ========== 顶栏 ========== -->
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-mark">顺</div>
+    <div class="brand-txt">
+      <h1>顺德寻味地图</h1>
+      <p>食在广州 · 厨出凤城</p>
+    </div>
+  </div>
+
+  <div class="search">
+    <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+      <circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5" stroke-linecap="round"/>
+    </svg>
+    <input id="q" type="text" placeholder="搜店名、菜式或镇街，比如「双皮奶」" autocomplete="off" />
+    <button class="clr" id="clr" aria-label="清空">✕</button>
+  </div>
+
+  <div class="top-stats">
+    <div class="stat"><b>52</b><span>家店</span></div>
+    <div class="divider"></div>
+    <div class="stat"><b>15</b><span>必吃榜</span></div>
+    <div class="divider"></div>
+    <div class="stat"><b>16</b><span>家博主探过</span></div>
+    <button class="btn-src" id="srcBtn">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+        <path d="M4 6h16M4 12h16M4 18h10" stroke-linecap="round"/>
+      </svg>
+      博主信源
+    </button>
+  </div>
+</header>
+
+<!-- ========== 主体 ========== -->
+<div class="layout">
+
+  <!-- 左：筛选 + 列表 -->
+  <aside class="panel">
+
+    <div class="viewtabs" id="viewtabs">
+      <button class="vtab on" data-view="map">地图找店 <b>52</b></button>
+      <button class="vtab" data-view="must">2025 必吃榜 <b>15</b></button>
+    </div>
+
+    <div class="filters" id="filtersBox">
+      <div class="chips" id="chips"></div>
+      <div class="areas" id="areas"></div>
+      <div class="creators" id="creators"></div>
+    </div>
+
+    <div class="list-head" id="listHead">
+      <span>共 <b id="cnt">52</b> 家 · 按街区排序</span>
+      <button class="sort-btn" id="videoBtn">看博主视频 →</button>
+    </div>
+
+    <div class="list" id="list"></div>
+    <div class="mustlist" id="mustlist" hidden></div>
+  </aside>
+
+  <!-- 右：地图 -->
+  <section class="mapwrap">
+    <div id="map"></div>
+
+    <div class="maptools">
+      <div class="tool-group">
+        <button class="tool" id="tileBtn" title="切换卫星图">卫</button>
+        <button class="tool" id="resetBtn" title="回到顺德全境">⌂</button>
+      </div>
+    </div>
+
+    <div class="legend" id="legend"></div>
+  </section>
+</div>
+
+<!-- 移动端底部切换 -->
+<div class="mobile-tabs">
+  <button class="on" data-view="list">店铺列表</button>
+  <button data-view="map">地图找店</button>
+</div>
+
+<!-- 详情抽屉 -->
+<div class="drawer" id="drawer"></div>
+
+<!-- 博主信源弹层 -->
+<div class="sheet-mask" id="mask"></div>
+<div class="sheet" id="sheet">
+  <div class="sheet-head">
+    <button class="dw-close" id="sheetClose" style="float:right;position:static;margin-top:-4px">✕</button>
+    <h3 id="sheetTitle">博主信源</h3>
+    <p id="sheetDesc">8 位博主的档案与真实主页 / 合集链接。打「已核到」的是确有顺德探店内容、下面是挂到店的；
+       打「未核到」的是检索过但没有公开的顺德记录 —— 这种情况不挂店，也不编造视频地址。</p>
+  </div>
+  <div class="sheet-body" id="srcList"></div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<script src="assets/data.js"></script>
+<script src="assets/photos.js"></script>
+<script src="assets/photos-amap.js"></script>
+<script src="assets/app.js"></script>
+<script src="assets/gallery.js"></script>
+<script>
+  // 图例
+  document.addEventListener('DOMContentLoaded', function () {
+    var lg = document.getElementById('legend');
+    lg.innerHTML = CATEGORIES.filter(function (c) { return c.id !== 'all'; })
+      .map(function (c) {
+        return '<span><i style="background:' + c.color + '"></i>' + c.name + '</span>';
+      }).join('');
+  });
+</script>
+</body>
+</html>

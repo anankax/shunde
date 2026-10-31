@@ -1,0 +1,118 @@
+{
+  "_说明": "这 6 条对应的 shopId+cid 在 data.js 里已经存在，只是 url 是主页/合集页。合并时请「替换 url 和 publishDate」，不要按规则 2 追加成第二条，否则同一次探店会出现两条。",
+  "shuixiantou": [
+    {
+      "cid": "tangsui",
+      "name": "特厨隋坡",
+      "platform": "bilibili",
+      "title": "特厨探店|出名但是评论两极分化？—水仙头私房菜到底怎么样！",
+      "url": "https://www.bilibili.com/video/BV1UQcTz9E8U",
+      "publishDate": "2026-02-10",
+      "evidence": "confidently",
+      "oldUrl": "https://space.bilibili.com/3546888255048212/channel/collectiondetail?sid=8235552"
+    }
+  ],
+  "xiangjiang": [
+    {
+      "cid": "tangsui",
+      "name": "特厨隋坡",
+      "platform": "bilibili",
+      "title": "特厨探店|美食之都最爱的老字号？！—香江饭店",
+      "url": "https://www.bilibili.com/video/BV1BUc4ztEsz",
+      "publishDate": "2026-02-17",
+      "evidence": "confidently",
+      "oldUrl": "https://space.bilibili.com/3546888255048212/channel/collectiondetail?sid=8235552"
+    }
+  ],
+  "shunfengshaoji": [
+    {
+      "cid": "tangsui",
+      "name": "特厨隋坡",
+      "platform": "bilibili",
+      "title": "特厨探店|一桌子菜吃出了上下两极？！—顺峰烧鸡",
+      "url": "https://www.bilibili.com/video/BV1m4FXzyEt9",
+      "publishDate": "2026-02-14",
+      "evidence": "confidently",
+      "oldUrl": "https://space.bilibili.com/3546888255048212/channel/collectiondetail?sid=8235552"
+    }
+  ],
+  "zhengsiwei": [
+    {
+      "cid": "tangsui",
+      "name": "特厨隋坡",
+      "platform": "bilibili",
+      "title": "特厨探店|没有门头没有招牌的顺德小店—蒸四味",
+      "url": "https://www.bilibili.com/video/BV1wVcvzsEs9",
+      "publishDate": "2026-02-23",
+      "evidence": "confidently",
+      "oldUrl": "https://space.bilibili.com/3546888255048212/channel/collectiondetail?sid=8235552"
+    }
+  ],
+  "_抖音补充": "下面 3 条同样是「替换」，原记录 url 是搜索页或主页，不是视频。",
+  "qiaozhu": [
+    {
+      "cid": "pinchengji",
+      "name": "品城记",
+      "platform": "douyin",
+      "title": "探店 | 这家店，顺德本地人都要排队吃！",
+      "url": "https://www.douyin.com/video/7388837676360797476",
+      "publishDate": "2024-07-07",
+      "evidence": "confidently",
+      "quote": "视频简介原文：店名：寻味顺德·桥珠印象·鱼生私房菜 地址：顺德区延年路38号野火游泳馆旁",
+      "note": "抖音这一版简介直接把店名和门牌号都写出来了，比 B 站那版强；原来那条挂在 space.bilibili.com 主页上的应换成它",
+      "oldUrl": "https://space.bilibili.com/35364728"
+    }
+  ],
+  "gongsi": [
+    {
+      "cid": "yewen",
+      "name": "野文不懂吃",
+      "platform": "douyin",
+      "title": "19元顺德干蒸，村口大排档天花板",
+      "url": "https://www.douyin.com/video/7560607160237919498",
+      "publishDate": "2025-10-13",
+      "evidence": "confidently",
+      "quote": "视频章节要点原文：00:26 公司排骨饭 —— 在顺德村边的大排档品尝了干蒸排骨、猪杂和肉球",
+      "note": "店名出在章节要点里，不在标题；同一条还拍了国英炖品店和金宝霞姐老铺（章节 05:53 / 08:13）",
+      "oldUrl": "https://search.bilibili.com/all?keyword=公司排骨饭"
+    }
+  ],
+  "moshijibao": [
+    {
+      "cid": "liuyuxin",
+      "name": "JASON刘雨鑫",
+      "platform": "douyin",
+      "title": "广东佛山，本地人的宝藏小馆，尝尝怎么样？",
+      "url": "https://www.douyin.com/video/7620788558017695003",
+      "publishDate": "2026-03-25",
+      "evidence": "probably",
+      "quote": "评论区原话：莫婶 ——「我是这家饭店的老板娘，我声明一下，不是煮2分钟可以吃，是水沸腾之后下鸡…」",
+      "note": "标题和简介都没写店名（只有 #佛山 #鸡煲）；页面「大家都在搜：莫氏鸡煲」，老板娘本人在评论区自报身份。按第 6 条只能算 probably",
+      "oldUrl": "https://www.douyin.com/search/莫氏鸡煲"
+    }
+  ],
+  "niuzhan": [
+    {
+      "cid": "tangrenjie",
+      "name": "真探唐仁杰",
+      "platform": "bilibili",
+      "title": "广东顺德.牛展   厨子探店¥221",
+      "url": "https://www.bilibili.com/video/BV16t4y1w7Vb",
+      "publishDate": "2022-09-30",
+      "evidence": "confidently",
+      "oldUrl": "https://space.bilibili.com/544336675"
+    }
+  ],
+  "damengong": [
+    {
+      "cid": "tangrenjie",
+      "name": "真探唐仁杰",
+      "platform": "bilibili",
+      "title": "顺德.大门公 厨子探店¥838",
+      "url": "https://www.bilibili.com/video/BV1MY4y1N7rA",
+      "publishDate": "2022-09-21",
+      "evidence": "confidently",
+      "oldUrl": "https://space.bilibili.com/544336675"
+    }
+  ]
+}
