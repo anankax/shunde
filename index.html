@@ -92,7 +92,12 @@
 
     <div class="maptools">
       <div class="tool-group">
-        <button class="tool" id="meBtn" title="回到我的位置" hidden>◎</button>
+        <button class="tool" id="meBtn" title="我的位置：还没定位就先定位，定过了就回到我这儿">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="1.7" fill="currentColor" stroke="none"/>
+            <path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3"/>
+          </svg>
+        </button>
         <button class="tool" id="tileBtn" title="切换卫星图">卫</button>
         <button class="tool" id="resetBtn" title="回到顺德全境">⌂</button>
       </div>

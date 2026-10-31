@@ -129,6 +129,9 @@ function initMap() {
     attribution: '地图数据 © 高德地图 AutoNavi'
   }).addTo(map);
 
+  // 比例尺：17 级街道图上整屏也就一公里多，没有它容易把「1.3 km」看成一步路
+  L.control.scale({ position: 'bottomright', imperial: false, maxWidth: 110 }).addTo(map);
+
   let tileFails = 0;
   activeTileLayer.on('tileerror', () => {
     if (++tileFails === 6) {
@@ -369,6 +372,25 @@ function setFocus(shop) {
     interactive: false, keyboard: false, zIndexOffset: 1500
   }).addTo(focusLayer);
 
+  // 定了位就把「我 → 这家店」拉一条虚线，中间标上直线距离：
+  // 光在列表里写「距你 1.3 km」，在 17 级的街道图上看着不像，画出来才知道量的就是这一段
+  // 人不在附近就别拉线了：一千公里外那条线会横穿整张图，还没有标签，看着像画错了
+  if (state.origin && distKm(state.origin, shop) <= 12) {
+    const a = [state.origin.lat, state.origin.lng];
+    const b = [shop.lat, shop.lng];
+    L.polyline([a, b], {
+      color: '#2563EB', weight: 2, opacity: .7, dashArray: '6 7', interactive: false
+    }).addTo(focusLayer);
+    L.marker([(a[0] + b[0]) / 2, (a[1] + b[1]) / 2], {
+      icon: L.divIcon({
+        className: 'dline-wrap',
+        html: '<div class="dline">直线 ' + fmtDist(distOf(shop)) + '</div>',
+        iconSize: [0, 0], iconAnchor: [0, 0]
+      }),
+      interactive: false, keyboard: false, zIndexOffset: 1600
+    }).addTo(focusLayer);
+  }
+
   flyToShop(shop);
 }
 
@@ -382,8 +404,19 @@ function flyToShop(shop) {
   if (!size || !size.x || !size.y) return;
   // 抽屉盖住右边一条，把店挪到剩下那块的正中，别让它躲在抽屉底下
   const dw = document.getElementById('drawer');
-  const shift = (dw && window.innerWidth > 760) ? Math.round(dw.offsetWidth / 2) : 0;
+  const dwW = (dw && window.innerWidth > 760) ? Math.round(dw.offsetWidth) : 0;
   try {
+    // 定了位就把「我」和这家店一起框进画面：只飞到店，人在屏幕外，那条虚线就只剩一截，
+    // 反而更看不出 1.5 km 有多远。太远（不在顺德附近）就别框了，否则一屏缩到全国
+    if (state.origin && distKm(state.origin, shop) <= 12) {
+      map.flyToBounds(L.latLngBounds([state.origin.lat, state.origin.lng], [shop.lat, shop.lng]), {
+        maxZoom: 17, duration: .8,
+        paddingTopLeft: [40, 40],
+        paddingBottomRight: [dwW + 60, 60]
+      });
+      return;
+    }
+    const shift = Math.round(dwW / 2);
     const p = map.project(L.latLng(shop.lat, shop.lng), 17).add([shift, 0]);
     map.flyTo(map.unproject(p, 17), 17, { duration: .8 });
   } catch (e) { /* 地图还没准备好，这次不飞 */ }
@@ -548,8 +581,6 @@ function endPick() {
 function renderGeoBar() {
   const bar = document.getElementById('geoBar');
   if (!bar) return;
-  const meBtn = document.getElementById('meBtn');
-  if (meBtn) meBtn.hidden = !state.origin;
   if (!state.origin) {
     bar.className = 'geo-bar';
     bar.innerHTML =
@@ -1011,8 +1042,10 @@ function bind() {
   });
   document.getElementById('pickCancel').addEventListener('click', endPick);
 
-  // 地图上那个「回到我的位置」小圆钮，只有定位过才露出来
-  document.getElementById('meBtn').addEventListener('click', flyToOrigin);
+  // 地图右上角那个准星：没定位过就先定位，定过了就飞回我这儿
+  document.getElementById('meBtn').addEventListener('click', () => {
+    if (state.origin) flyToOrigin(); else locateMe();
+  });
 
   // 信源弹层
   const sheet = document.getElementById('sheet');

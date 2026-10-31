@@ -855,3 +855,19 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 @media (max-width:900px){
   .pick-hint{bottom:80px}
 }
+
+/* 地图右上角那颗准星工具 */
+.tool svg{width:17px;height:17px}
+/* 我 → 店 那条虚线中间的距离标签 */
+.dline-wrap{background:none;border:none;pointer-events:none}
+.dline{
+  position:absolute;left:0;top:0;transform:translate(-50%,-50%);white-space:nowrap;
+  padding:3px 8px;border-radius:8px;background:rgba(37,99,235,.92);color:#fff;
+  font-size:11px;font-weight:700;letter-spacing:.2px;
+  box-shadow:0 2px 8px rgba(37,99,235,.35);
+}
+
+/* 手机上比例尺压到最底下会跟底部那颗切换丸子重叠，抬到丸子上面 */
+@media (max-width:900px){
+  .leaflet-bottom .leaflet-control-scale{margin-bottom:76px}
+}
