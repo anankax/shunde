@@ -282,7 +282,15 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 }
 .dw-close:hover{background:var(--bg-2);color:var(--ink)}
 .dw-cat{font-size:11px;font-weight:700;letter-spacing:.6px;margin-bottom:7px}
-.dw-title{font-size:21px;font-weight:700;letter-spacing:-.4px;line-height:1.3;padding-right:34px}
+.dw-title-row{display:flex;align-items:flex-start;gap:10px;padding-right:34px}
+.dw-title{font-size:21px;font-weight:700;letter-spacing:-.4px;line-height:1.3;flex:1 1 auto;min-width:0}
+.dw-map{
+  flex:0 0 auto;display:inline-flex;align-items:center;gap:4px;margin-top:3px;
+  padding:4px 9px;border-radius:9px;border:1px solid #F0D8CC;background:#FDF3EE;
+  color:#B4442C;font-size:12px;font-weight:700;white-space:nowrap;transition:.15s;
+}
+.dw-map svg{width:13px;height:13px}
+.dw-map:hover{background:#FBE6DC;border-color:#E9C3B2}
 .dw-sub{font-size:12px;color:var(--ink-3);margin-top:7px;display:flex;gap:9px;align-items:center;flex-wrap:wrap}
 .dw-sub .sep{width:3px;height:3px;border-radius:50%;background:var(--line)}
 .dw-body{flex:1;overflow-y:auto;padding:18px 22px 26px}

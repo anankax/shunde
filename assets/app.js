@@ -373,7 +373,13 @@ function openDrawer(shop) {
     '<div class="dw-head">' +
       '<button class="dw-close" id="dwClose" aria-label="关闭">✕</button>' +
       '<div class="dw-cat" style="color:' + c.color + '">' + c.name + '</div>' +
-      '<div class="dw-title">' + esc(shop.name) + '</div>' +
+      '<div class="dw-title-row">' +
+        '<div class="dw-title">' + esc(shop.name) + '</div>' +
+        '<button class="dw-map" id="dwMap" type="button" title="关闭详情，在地图上看这家店的位置">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" ' +
+            'stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11a7 7 0 1 1 14 0c0 4.8-7 11-7 11z"/>' +
+            '<circle cx="12" cy="10" r="2.6"/></svg>看地图</button>' +
+      '</div>' +
       (shop.featured ? '<div class="dw-featured">' + esc(shop.featured) + '</div>' : '') +
       '<div class="dw-sub"><span>' + esc(shop.area) + '</span><span class="sep"></span>' +
         '<span>' + esc(shop.price) + '/人</span><span class="sep"></span>' +
@@ -477,6 +483,21 @@ function openDrawer(shop) {
 
   document.getElementById('drawer').classList.add('open');
   document.getElementById('dwClose').addEventListener('click', closeDrawer);
+
+  /* 「看地图」：手机上证个位置得先叉掉详情再切到地图，两步；这里一步做完 */
+  document.getElementById('dwMap').addEventListener('click', () => {
+    const sid = shop.id;
+    closeDrawer();
+    state.focusId = sid;          // closeDrawer 只清 activeId，这里显式留一手
+    const tabs = document.querySelector('.mobile-tabs');
+    const onPhone = tabs && getComputedStyle(tabs).display !== 'none';
+    if (onPhone) {
+      const b = tabs.querySelector('button[data-view="map"]');
+      if (b) b.click();           // 走原来那套：切栏 → invalidateSize → setFocus
+    } else if (map) {
+      setFocus(shop);             // 桌面地图一直在，重新点上光圈就行
+    }
+  });
 }
 
 function closeDrawer() {
