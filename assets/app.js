@@ -21,7 +21,7 @@ const ANCHORS = [
   ['均安', 22.7480, 113.1180]
 ];
 
-const state = { cat: 'all', area: 'all', q: '', activeId: null, satellite: false, view: 'map', creator: 'all' };
+const state = { cat: 'all', area: 'all', q: '', activeId: null, focusId: null, satellite: false, view: 'map', creator: 'all' };
 
 let map = null, markerLayer = null, anchorLayer = null, activeTileLayer = null, focusLayer = null;
 let markers = {};
@@ -273,6 +273,7 @@ function activate(id) {
    15 级时店只是一颗和周围几十颗一样的小图钉，看不出「定位到哪了」，所以拉到 17。 */
 function setFocus(shop) {
   if (!map) return;
+  state.focusId = shop.id;
   if (!focusLayer) focusLayer = L.layerGroup().addTo(map);
   focusLayer.clearLayers();
   document.querySelectorAll('.mk.is-focus').forEach(el => el.classList.remove('is-focus'));
@@ -301,11 +302,24 @@ function setFocus(shop) {
     interactive: false, keyboard: false, zIndexOffset: 1500
   }).addTo(focusLayer);
 
+  flyToShop(shop);
+}
+
+/* 把地图飞到这家店。
+   手机在「店铺列表」那一栏时地图是 display:none，getSize() 是 0×0，这时 project/unproject
+   会算出 NaN，flyTo 直接抛「Invalid LatLng object」，把后面打开抽屉那步一起带崩——
+   表现就是「有时候点店不弹详情」。所以没量出尺寸就不飞，飞不动也不能影响开抽屉。 */
+function flyToShop(shop) {
+  if (!map || !shop) return;
+  const size = map.getSize();
+  if (!size || !size.x || !size.y) return;
   // 抽屉盖住右边一条，把店挪到剩下那块的正中，别让它躲在抽屉底下
   const dw = document.getElementById('drawer');
   const shift = (dw && window.innerWidth > 760) ? Math.round(dw.offsetWidth / 2) : 0;
-  const p = map.project(L.latLng(shop.lat, shop.lng), 17).add([shift, 0]);
-  map.flyTo(map.unproject(p, 17), 17, { duration: .8 });
+  try {
+    const p = map.project(L.latLng(shop.lat, shop.lng), 17).add([shift, 0]);
+    map.flyTo(map.unproject(p, 17), 17, { duration: .8 });
+  } catch (e) { /* 地图还没准备好，这次不飞 */ }
 }
 
 function clearFocus() {
@@ -651,6 +665,7 @@ function bind() {
   // 复位
   document.getElementById('resetBtn').addEventListener('click', () => {
     closeDrawer();
+    state.focusId = null;
     fitTo(filtered());
   });
 
@@ -671,7 +686,14 @@ function bind() {
       document.querySelectorAll('.mobile-tabs button').forEach(x => x.classList.remove('on'));
       b.classList.add('on');
       layout.classList.toggle('show-map', b.dataset.view === 'map');
-      if (b.dataset.view === 'map' && map) setTimeout(() => map.invalidateSize(), 60);
+      if (b.dataset.view === 'map' && map) {
+        // 从列表切过来时地图才有尺寸；刚在列表里点过的那家，这时候再飞过去并点上光圈
+        setTimeout(() => {
+          map.invalidateSize();
+          const s = SHOPS.find(x => x.id === state.focusId);
+          if (s) setFocus(s);
+        }, 80);
+      }
     });
   });
 
