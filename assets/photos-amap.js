@@ -544,5 +544,44 @@ const AMAP_PHOTOS = {
    "author": "",
    "poi": ""
   }
+ ],
+ "weikedaoo": [
+  {
+   "src": "assets/photos-amap/weikedaoo/1.jpg",
+   "title": "",
+   "from": "amap",
+   "author": "",
+   "poi": "B0FFH24BBD"
+  },
+  {
+   "src": "assets/photos-amap/weikedaoo/2.jpg",
+   "title": "",
+   "from": "amap",
+   "author": "",
+   "poi": "B0FFH24BBD"
+  }
+ ],
+ "dongyiwan": [
+  {
+   "src": "assets/photos-amap/dongyiwan/1.jpg",
+   "title": "",
+   "from": "amap",
+   "author": "",
+   "poi": "B02F5078BV"
+  },
+  {
+   "src": "assets/photos-amap/dongyiwan/2.jpg",
+   "title": "",
+   "from": "amap",
+   "author": "",
+   "poi": "B02F5078BV"
+  },
+  {
+   "src": "assets/photos-amap/dongyiwan/3.jpg",
+   "title": "",
+   "from": "amap",
+   "author": "",
+   "poi": "B02F5078BV"
+  }
  ]
 };

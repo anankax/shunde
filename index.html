@@ -2,12 +2,24 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>顺德寻味地图 · 吃在广州，厨出凤城</title>
-<meta name="description" content="顺德美食地图：52 家本地老店、街边神店与干蒸排骨专门店，含 2025 大众点评必吃榜顺德区 15 家全部落点，标注每家被哪些博主探过、是否上榜，附抖音 / B站视频。" />
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+<meta name="description" content="顺德美食地图：50 家本地老店、街边神店与干蒸排骨专门店，含 2025 大众点评必吃榜顺德区 15 家全部落点，标注每家被哪些博主探过、是否上榜，附抖音 / B站视频。" />
+
+<!-- 分享卡片：微信 / 小红书 / 朋友圈转发时显示的那张图 -->
+<meta property="og:type" content="website" />
+<meta property="og:title" content="顺德寻味地图 · 吃在广州，厨出凤城" />
+<meta property="og:description" content="50 家本地老店和 15 家必吃榜，每家都标了坐标、实拍和博主探店视频。点开就是一张能直接导航的地图。" />
+<meta property="og:image" content="https://anankax.github.io/shunde/assets/og-cover.jpg" />
+<meta property="og:url" content="https://anankax.github.io/shunde/" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="theme-color" content="#B4442C" />
+
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
+
+<link rel="stylesheet" href="assets/vendor/leaflet.css" />
+<link rel="stylesheet" href="assets/vendor/MarkerCluster.css" />
 <link rel="stylesheet" href="assets/style.css" />
 </head>
 <body>
@@ -31,11 +43,11 @@
   </div>
 
   <div class="top-stats">
-    <div class="stat"><b>52</b><span>家店</span></div>
+    <div class="stat"><b id="statShops">50</b><span>家店</span></div>
     <div class="divider"></div>
-    <div class="stat"><b>15</b><span>必吃榜</span></div>
+    <div class="stat"><b id="statMust">15</b><span>必吃榜</span></div>
     <div class="divider"></div>
-    <div class="stat"><b>16</b><span>家博主探过</span></div>
+    <div class="stat"><b id="statVisited">15</b><span>家博主探过</span></div>
     <button class="btn-src" id="srcBtn">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
         <path d="M4 6h16M4 12h16M4 18h10" stroke-linecap="round"/>
@@ -52,8 +64,8 @@
   <aside class="panel">
 
     <div class="viewtabs" id="viewtabs">
-      <button class="vtab on" data-view="map">地图找店 <b>52</b></button>
-      <button class="vtab" data-view="must">2025 必吃榜 <b>15</b></button>
+      <button class="vtab on" data-view="map">地图找店 <b id="tabMap">50</b></button>
+      <button class="vtab" data-view="must">2025 必吃榜 <b id="tabMust">15</b></button>
     </div>
 
     <div class="filters" id="filtersBox">
@@ -107,9 +119,9 @@
   <div class="sheet-body" id="srcList"></div>
 </div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<!-- Leaflet 1.9.4 / markercluster 1.5.3 落到本地，不再依赖 unpkg -->
+<script src="assets/vendor/leaflet.js"></script>
+<script src="assets/vendor/leaflet.markercluster.js"></script>
 <script src="assets/data.js"></script>
 <script src="assets/photos.js"></script>
 <script src="assets/photos-amap.js"></script>

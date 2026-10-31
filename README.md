@@ -1,6 +1,6 @@
 # 顺德寻味地图
 
-高德底图的顺德美食地点网站。**52 家店**在地图上标注，2025 大众点评必吃榜顺德区 15 家**全部落点**，每家标明**被哪些博主探过**、**是否上必吃榜**，并附抖音 / B站直达。
+高德底图的顺德美食地点网站。**50 家店**在地图上标注，2025 大众点评必吃榜顺德区 15 家**全部落点**，每家标明**被哪些博主探过**、**是否上必吃榜**，并附抖音 / B站直达。
 
 打开 `index.html` 即可，无需构建、无需后端。
 
@@ -10,7 +10,7 @@
 
 每家店在列表卡片和详情抽屉里都能看到这三件事：
 
-1. **品类** — 含单独一档「干蒸排骨」（容边排骨饭、兄弟干蒸排骨、滋整公、蒸四味、公司排骨饭）
+1. **品类** — 含单独一档「干蒸排骨」（容边排骨饭、滋整公、蒸四味、公司排骨饭）
 2. **谁吃过** — 蓝色「探店 XX」小标；详情里展开博主名、平台、这条视频讲了什么、点进去看
 3. **必吃榜** — 金色「★ 2025 必吃榜」标；没上榜的会在详情里写明「未上榜（顺德区共 15 家）」
 
@@ -72,10 +72,10 @@ node scripts/fetch-amap.mjs 你的KEY
 
 | 来源 | 脚本 | 现状 |
 |---|---|---|
-| 高德地图 POI 相册（食客评价图、商家图） | `scripts/fetch-amap-photos.mjs 你的KEY` | 已跑，52 家里 44 家有图，共 64 张 |
-| B 站探店视频封面（博主实拍，可顺着 BV 号核对） | `scripts/fetch-photos.mjs` | 已跑，32 家有图，用来补齐 |
+| 高德地图 POI 相册（食客评价图、商家图） | `scripts/fetch-amap-photos.mjs 你的KEY` | 已跑，50 家里 46 家有图，共 69 张 |
+| B 站探店视频封面（博主实拍，可顺着 BV 号核对） | `scripts/fetch-photos.mjs` | 已跑，31 家有图，用来补齐 |
 
-合并后 48 家店共 129 张，4 家（味可道、东逸湾、兄弟干蒸排骨羊额店、滋整公）仍然没图。
+合并后 49 家店共 131 张，只剩滋整公干蒸排骨饭一家没图（高德相册只有门头、店内、霓虹灯牌，没有菜品图，按「只留菜品」的规矩没放）。
 
 ### 每店 1~3 张，是接口上限
 
@@ -103,7 +103,7 @@ node scripts/fetch-amap.mjs 你的KEY
 - **大众点评**：`dianping.com/search/...` 直接 302 到 `verify.meituan.com/v2/app/general_page?...action=spiderindefence`，就是滑块验证页。无登录态拿不到列表页，更拿不到店铺相册。
 - **高德网页版**：`amap.com/service/poiInfo` 在无登录态下返回空 body；改用无头 Chrome 点进详情，`AMap.PlaceSearch` 回调 `status='error'`（key 有域名白名单，非高德页面调不动）。JSAPI 的 key（网页里那个）也不能当 Web 服务 key 用，`restapi` 会报 `USERKEY_PLAT_NOMATCH`。
 
-所以高德相册只能走**开放平台 Web 服务 API**，也就是上面第一条：申请一个「Web服务」类型的 Key（个人开发者免费），跑一次脚本，52 家的高德相册图就会落到 `assets/photos-amap/` 并自动生效。
+所以高德相册只能走**开放平台 Web 服务 API**，也就是上面第一条：申请一个「Web服务」类型的 Key（个人开发者免费），跑一次脚本，50 家的高德相册图就会落到 `assets/photos-amap/` 并自动生效。
 
 ### B 站那条是怎么抓的
 
@@ -120,14 +120,17 @@ node scripts/fetch-amap.mjs 你的KEY
 ```
 index.html                        页面结构
 assets/style.css                  样式
-assets/data.js                    全部数据：52 家店 + 必吃榜 15 家 + 9 位博主档案
+assets/data.js                    全部数据：50 家店 + 必吃榜 15 家 + 9 位博主档案
 assets/app.js                     地图、筛选、详情抽屉、视图切换、博主筛选
 assets/gallery.js                 店铺小图 + 灯箱放大（点图看大图，可切图）
 assets/photos.js                  B 站探店实拍索引（自动生成）
 assets/photos/                    B 站实拍图，按店 id 分目录
 assets/photos-amap.js             高德相册索引（跑脚本后生成，优先于 B 站图）
 assets/photos-amap/               高德相册图，按店 id 分目录
-scripts/fetch-photos.mjs          按店名抓 B 站探店实拍（无头 Chrome，52 家约 6 分钟）
+assets/thumbs/                    列表小图用的 160px WebP 缩略图（路径与上面两个目录一一对应）
+assets/vendor/                    Leaflet 1.9.4 + markercluster 1.5.3，本地化，不走 CDN
+assets/og-cover.jpg               微信 / 朋友圈转发的分享卡片（1200×630）
+scripts/fetch-photos.mjs          按店名抓 B 站探店实拍（无头 Chrome，50 家约 6 分钟）
 scripts/fetch-amap-photos.mjs     抓高德 POI 相册（需 Key）
 scripts/fetch-amap.mjs            高德评分批量补全（需 Key）
 scripts/CLAUDE-CODE-PROMPT.md     给 Claude Code 的补数据任务提示词（整段复制即可）
@@ -163,7 +166,7 @@ scripts/CLAUDE-CODE-PROMPT.md     给 Claude Code 的补数据任务提示词（
 - ✅ `民信老铺 华盖路店 大良`
 - ❌ `民信老铺 华盖路 双皮奶 大良 顺德 老字号`（原来的 `kw` 字段塞了描述词，高德对这种长串经常返回空）
 
-长店名像「鳗事鱼意 · 活鳗现烤专门店 · 嘉信店」会砍到主名「鳗事鱼意」再补镇街。全部 52 家平均 8.8 字，最长 15 字。
+长店名像「鳗事鱼意 · 活鳗现烤专门店 · 嘉信店」会砍到主名「鳗事鱼意」再补镇街。50 家的搜索词最长 15 字。
 
 ## 地图方案
 
@@ -172,7 +175,7 @@ scripts/CLAUDE-CODE-PROMPT.md     给 Claude Code 的补数据任务提示词（
 - 瓦片连续失败会自动退回 OpenStreetMap，不至于白屏
 - 标注带聚合（markercluster），大良那种密集商圈不会糊成一坨
 - 坐标分两种：有公开经纬度的（如润记宵夜）直接用；其余是**街区级近似**，详情里会写明「这家没有公开的精确门牌坐标」。所以每个「导航」按钮走的都是**高德关键词搜索**而不是精确坐标，避免偏个几百米把人带沟里
-- 首屏固定在大良—容桂核心区，不 fit 全部 52 家（跨六个镇街，fit 出来会缩到广州去）；筛选后才跟随结果
+- 首屏固定在大良—容桂核心区，不 fit 全部 50 家（跨六个镇街，fit 出来会缩到广州去）；筛选后才跟随结果
 
 ## 视频链接的诚实说明
 
@@ -201,7 +204,7 @@ chrome --headless=new --disable-gpu --virtual-time-budget=14000 --dump-dom \
 
 # 空间内精准搜索（比翻页靠谱，能直接定位到历史视频）
 chrome --headless=new --disable-gpu --virtual-time-budget=14000 --dump-dom \
-  "https://space.bilibili.com/<UID>/search?keyword=牛展" > s.html
+  "https://space.bilibili.com/<UID>/search?keyword=双皮奶" > s.html
 ```
 
 从渲染后的 DOM 里捞出 `BV[0-9A-Za-z]{10}`，再逐个查标题核对：

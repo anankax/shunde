@@ -253,29 +253,6 @@ const PHOTOS = {
    "date": "2024-07-31"
   }
  ],
- "niuzhan": [
-  {
-   "src": "assets/photos/niuzhan/BV1vJ411F7Lo.jpg",
-   "bv": "BV1vJ411F7Lo",
-   "up": "布朗并不浪",
-   "title": "顺德牛展煲仔饭，究竟是有多好吃？这么多人慕名而来？连郭杰瑞也来过？",
-   "date": "2019-10-07"
-  },
-  {
-   "src": "assets/photos/niuzhan/BV1mP411o75V.jpg",
-   "bv": "BV1mP411o75V",
-   "up": "探味小厨娘",
-   "title": "带你解锁牛展致富密码—复刻牛展煲仔饭",
-   "date": "2023-03-23"
-  },
-  {
-   "src": "assets/photos/niuzhan/BV1Fi4y1M7wb.jpg",
-   "bv": "BV1Fi4y1M7wb",
-   "up": "陈随便778",
-   "title": "【佛山顺德牛展煲仔饭】舌尖上的中国推荐的煲仔饭味道究竟怎样",
-   "date": "2021-03-02"
-  }
- ],
  "wenhua": [],
  "shunderenjia": [],
  "dabanqiao": [],
@@ -349,7 +326,6 @@ const PHOTOS = {
    "date": "2024-10-16"
   }
  ],
- "xiongdi": [],
  "zizhenggong": [],
  "moshijibao": [
   {

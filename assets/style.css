@@ -160,6 +160,18 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .item-sig{font-size:11.5px;color:var(--brand);margin-top:4px;opacity:.85;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
 .empty{padding:50px 20px;text-align:center;color:var(--ink-3);font-size:13px;line-height:1.9}
+.empty-sug{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:16px 0 18px}
+.empty-shop{
+  padding:8px 13px;border-radius:9px;background:#fff;border:1px solid var(--line);
+  font-size:12.5px;font-weight:600;color:var(--ink);cursor:pointer;transition:.15s;
+}
+.empty-shop span{margin-left:6px;font-weight:400;color:var(--ink-3);font-size:11px}
+.empty-shop:hover{border-color:#D8C9B8;background:var(--bg-2)}
+.empty-reset{
+  padding:9px 18px;border-radius:999px;background:var(--ink);color:#fff;
+  font-size:12.5px;font-weight:600;cursor:pointer;border:0;transition:.15s;
+}
+.empty-reset:hover{opacity:.86}
 
 /* ---- 地图 ---- */
 .mapwrap{flex:1;position:relative;background:#EFE9E0;min-width:0}
@@ -443,6 +455,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
   .mobile-tabs button{
     padding:9px 22px;border-radius:999px;font-size:13px;font-weight:600;
     color:rgba(255,255,255,.55);transition:.18s;
+    white-space:nowrap;flex-shrink:0;   /* 390px 下会被挤成两行：「店铺列 表」 */
   }
   .mobile-tabs button.on{background:#fff;color:var(--ink)}
   .legend{display:none}

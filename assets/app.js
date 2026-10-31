@@ -6,8 +6,10 @@
    ========================================================== */
 
 const CONFIG = {
-  center: [22.8180, 113.2680],
-  zoom: 12,
+  center: [22.8220, 113.2720],
+  // 12 在 16:9 的屏上横向能看到 37 公里，从番禺一直看到中山，顺德反而成了中间一小块；
+  // 13 大约 18 公里，起手就是大良+容桂，其余镇街拖一下就到。
+  zoom: 13,
   tileStandard: 'https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}',
   tileSatellite: 'https://webst0{s}.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}'
 };
@@ -44,7 +46,9 @@ function filtered() {
     if (state.creator !== 'all' && !(s.visited || []).some(v => v.cid === state.creator)) return false;
     if (!q) return true;
     const who = (s.visited || []).map(v => v.name).join('');
-    const hay = normalize([s.name, s.area, s.addr, s.desc, s.sig.join(''), catMap[s.cat].name, s.featured || '', who].join(' '));
+    // kw / navKw 是高德导航用的别名关键词（含旧店名、地标、村名），搜「大良毋米粥」「顺博创意园」也能命中
+    const hay = normalize([s.name, s.area, s.addr, s.desc, s.sig.join(''), catMap[s.cat].name,
+      s.featured || '', who, s.kw || '', s.navKw || '', s.tip || ''].join(' '));
     return hay.includes(q);
   });
   // 按镇街聚拢，逛起来不用来回横跳
@@ -200,7 +204,17 @@ function renderList(list) {
   document.getElementById('cnt').textContent = list.length;
 
   if (!list.length) {
-    box.innerHTML = '<div class="empty">这条街上没找到店。<br>换个关键词，或者把筛选放宽点。</div>';
+    // 空结果别只丢一句「没找到」：给几家招牌店垫底，再给一个一键清空筛选的出口
+    const sug = SHOPS.filter(s => s.badge || s.rating).slice(0, 3);
+    box.innerHTML = '<div class="empty">' +
+      (state.q ? '没找到「' + esc(state.q) + '」这家店。<br>换个关键词试试，或者先看看这几家：'
+               : '这个筛选下没有店。<br>把条件放宽一点，或者看看这几家：') +
+      '<div class="empty-sug">' + sug.map(s =>
+        '<button class="empty-shop" type="button" data-open="' + s.id + '">' +
+          esc(s.name) + '<span>' + esc(s.area) + '</span></button>').join('') +
+      '</div>' +
+      '<button class="empty-reset" type="button">清除筛选，看全部 ' + SHOPS.length + ' 家</button>' +
+    '</div>';
     return;
   }
 
@@ -287,7 +301,7 @@ function openDrawer(shop) {
           ? shop.visited.map(v => {
               const kw = v.name + ' ' + (v.kw || shop.name);
               const kind = urlKind(v.url);
-              const tagText = kind === 'video' ? '' : kind === 'home' ? '主页合集' : '链接待补';
+              const tagText = kind === 'video' ? '' : kind === 'home' ? '主页合集' : kind === 'search' ? '搜索入口' : '链接待补';
               return '<div class="vcard">' +
                 '<a class="vc-main" href="' + (v.url || '#') + '" target="_blank" rel="noopener">' +
                   '<div class="vc-top"><span class="vc-name">' + esc(v.name) + '</span>' +
@@ -323,19 +337,23 @@ function openDrawer(shop) {
         '<div class="hint">两个视频按钮走平台搜索直达，点开就是这家店最新最热的探店结果。</div>' +
       '</div>' +
       (srcs.length && !(shop.visited && shop.visited.length)
-        ? '<div class="dw-sec"><h4>已收录的博主视频</h4>' +
+        ? '<div class="dw-sec"><h4>同类参考视频</h4>' +
+            '<div class="dw-tip" style="margin-bottom:10px">这几条<b>不是这家店</b>，是同品类的做法和吃法参考，' +
+            '没有博主单独探过这家的实拍。</div>' +
             srcs.map(v =>
               '<a class="verified" href="' + v.url + '" target="_blank" rel="noopener">' +
-                '<div class="vp">' + (v.platform === 'bilibili' ? 'BILIBILI' : 'DOUYIN') + '</div>' +
+                '<div class="vp">' + (v.platform === 'bilibili' ? 'BILIBILI' : 'DOUYIN') +
+                  (v.kind === 'space' ? ' · 博主主页' : v.kind === 'collection' ? ' · 合集' : '') + '</div>' +
                 '<div class="vt">' + esc(v.title) + '</div>' +
+                (v.why ? '<div style="font-size:12px;color:#B4442C;margin:2px 0 4px">同品类：' + esc(v.why) + '</div>' : '') +
                 '<div class="vn">' + esc(v.note) + '</div>' +
               '</a>').join('') +
           '</div>'
         : '') +
       '<div class="hint" style="border-top:1px solid #E6DED2;padding-top:14px;margin-top:2px">' +
         (shop.approx
-          ? '这家没有公开的精确门牌坐标，地图点按所在街区近似落位，'
-          : '坐标为店铺所在街区的近似位置，') +
+          ? '这家在高德上没搜到对应门店，地图点按所在街区近似落位，'
+          : '坐标为高德地图上这家店 POI 的位置，') +
         '实际导航以高德关键词搜索为准。' +
       '</div>' +
     '</div>';
@@ -439,6 +457,19 @@ function renderAll() {
   firstRender = false;
 }
 
+// 空结果里那个按钮：三个筛选 + 搜索框一起归零，按钮高亮也跟着复原
+function resetAll() {
+  state.cat = 'all'; state.area = 'all'; state.creator = 'all'; state.q = '';
+  const q = document.getElementById('q');
+  if (q) q.value = '';
+  const c = document.getElementById('clr');
+  if (c) c.classList.remove('on');
+  document.querySelectorAll('#chips .chip').forEach(b => b.classList.toggle('on', b.dataset.cat === 'all'));
+  document.querySelectorAll('#areas .area-btn').forEach(b => b.classList.toggle('on', b.dataset.area === 'all'));
+  document.querySelectorAll('#creators .cr-btn').forEach(b => b.classList.toggle('on', b.dataset.cr === 'all'));
+  renderAll();
+}
+
 /* ---------------- 事件 ---------------- */
 function bind() {
   // 视图切换
@@ -521,6 +552,8 @@ function bind() {
   // 搜索
   const input = document.getElementById('q');
   const clr = document.getElementById('clr');
+  // 窄屏上长 placeholder 会被截掉半句，换成短的；示例字样留在桌面端
+  if (window.innerWidth < 520) input.placeholder = '搜店名、菜式或镇街';
   input.addEventListener('input', () => {
     state.q = input.value.trim();
     clr.classList.toggle('on', !!state.q);
@@ -533,6 +566,8 @@ function bind() {
 
   // 列表点击（事件委托，重渲染也不会丢）
   document.getElementById('list').addEventListener('click', e => {
+    // 空结果里的「清除筛选」：把三个筛选和搜索框一起复位
+    if (e.target.closest('.empty-reset')) { resetAll(); return; }
     // 导航键是新窗口跳转、实拍图是开灯箱，都不抢卡片的选中行为
     if (e.target.closest('.item-nav')) return;
     if (e.target.closest('.item-pic')) return;
@@ -650,7 +685,7 @@ function renderVideoSheet() {
   document.getElementById('sheetTitle').textContent = '博主视频清单';
   document.getElementById('sheetDesc').textContent =
     '当前筛选出 ' + list.length + ' 家店、' + total + ' 条博主记录：' + withVideo +
-    ' 条有确切视频链接，其余标注为「主页合集」或「链接待补」。每条右边都有 B站 / 抖音 两个按钮，' +
+    ' 条有确切视频链接，其余如实标注为「主页合集」或「搜索入口」。每条右边都有 B站 / 抖音 两个按钮，' +
     '点哪个就在哪个平台搜「博主 + 店名」，两边都留着。';
 
   if (!list.length) {
@@ -691,7 +726,19 @@ function renderVideoSheet() {
 }
 
 /* ---------------- 启动 ---------------- */
+// 顶部三个数字和两个 tab 上的人数都从数据里数出来，别再写死（删一家店就得改五处，容易漏）
+function syncStats() {
+  const n = SHOPS.length;
+  const must = MUST_EAT.items.length;
+  const visited = SHOPS.filter(s => (s.visited || []).length).length;
+  const put = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  put('statShops', n); put('tabMap', n);
+  put('statMust', must); put('tabMust', must);
+  put('statVisited', visited);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+  syncStats();
   renderSrcSheet();
 
   bind();

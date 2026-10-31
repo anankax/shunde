@@ -22,12 +22,21 @@
   window.shopPhotos = photosOf;
 
   /* ---------- 列表里的菜品小图（店名右边一排，不动卡片高度） ---------- */
+  // 卡片上这排小图实际只有 28px，原图是 800px、平均 62KB。
+  // assets/thumbs 下是同一批图压到 160px 的 WebP（约 4KB），路径规则一一对应；
+  // 万一某张缩略图没生成，onerror 退回原图，不会开天窗。
+  function thumbOf(src) {
+    return src.replace(/^assets\//, 'assets/thumbs/').replace(/\.(jpe?g|png)$/i, '.webp');
+  }
+
   window.picRowHTML = function (shop) {
     var ps = photosOf(shop.id);
     if (!ps.length) return '';
     return '<div class="pic-row">' + ps.slice(0, 3).map(function (p, i) {
       var tip = (p.title ? p.title + ' · ' : '') + shop.name + (p.branch ? '（图为同品牌' + p.branch + '）' : '');
-      return '<img class="pmini" src="' + p.src + '" alt="' + esc(tip) + '" title="' + esc(tip) + '"' +
+      return '<img class="pmini" src="' + thumbOf(p.src) + '" data-fallback="' + p.src + '"' +
+        ' alt="' + esc(tip) + '" title="' + esc(tip) + '"' +
+        ' onerror="this.onerror=null;this.src=this.dataset.fallback"' +
         ' loading="lazy" decoding="async" data-pic="' + shop.id + '" data-idx="' + i + '">';
     }).join('') + '</div>';
   };
