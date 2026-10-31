@@ -192,11 +192,48 @@ function nameHTML(name) {
   return esc(m[1].trim()) + '<span class="nm-sub">' + esc(m[2].trim()) + '</span>';
 }
 
-function badgeHTML(shop) {  let h = '';
+/* 高德 POI 的公开数据（评分/人均/营业时间），见 assets/amap-src.js */
+function amapOf(shop) {
+  return (window.AMAP_SRC && window.AMAP_SRC[shop.id]) || null;
+}
+
+function badgeHTML(shop) {
+  let h = '';
   if (shop.badge) h += '<span class="badge-must">★ ' + esc(shop.badge) + '</span>';
-  if (shop.rating) h += '<span class="rate">' + shop.rating.toFixed(1) + ' 分' +
-    (shop.reviews ? ' · ' + shop.reviews.toLocaleString('zh-CN') + ' 评' : '') + '</span>';
+  const a = amapOf(shop);
+  if (shop.rating) h += '<span class="rate">点评 ' + shop.rating.toFixed(1) + ' 分</span>';
+  else if (a && a.r) h += '<span class="rate-am">高德 ' + a.r.toFixed(1) + ' 分</span>';
   return h;
+}
+
+/* 站内 9 位博主之外、B 站上点名这家店的公开视频（见 assets/more-videos.js） */
+function moreVideos(shop) {
+  return (window.MORE_VIDEOS && window.MORE_VIDEOS[shop.id]) || [];
+}
+function fmtView(n) {
+  if (!n) return '—';
+  return n >= 10000 ? (n / 10000).toFixed(1).replace(/\.0$/, '') + ' 万' : String(n);
+}
+
+/* 详情页顶部那条「这家为什么在图上」的来源小标 */
+function srcStrip(shop) {
+  const chips = [];
+  if (shop.badge) chips.push('<span class="src-chip must">★ ' + esc(shop.badge) + '</span>');
+  if (shop.rating) chips.push('<span class="src-chip dianping">点评 ' + shop.rating.toFixed(1) + ' 分' +
+    (shop.reviews ? ' · ' + shop.reviews.toLocaleString('zh-CN') + ' 评' : '') + '</span>');
+  const vs = (shop.visited || []).filter(v => v.url && !/\/search/.test(v.url));
+  if (vs.length) {
+    chips.push('<span class="src-chip video">' +
+      (vs.length === 1 ? esc(vs[0].name) + ' 探过' : vs.length + ' 位博主探过') + '</span>');
+  }
+  const a = amapOf(shop);
+  if (a) {
+    const txt = '高德收录' + (a.r ? ' ' + a.r.toFixed(1) + ' 分' : ' 门店');
+    chips.push('<a class="src-chip amap" href="https://www.amap.com/detail/' + a.poi +
+      '" target="_blank" rel="noopener">' + txt + '</a>');
+  }
+  if (!chips.length) chips.push('<span class="src-chip none">没有公开榜单或探店记录佐证</span>');
+  return '<div class="dw-src">' + chips.join('') + '</div>';
 }
 
 /* ---------------- 列表 ---------------- */
@@ -337,11 +374,11 @@ function openDrawer(shop) {
       '<button class="dw-close" id="dwClose" aria-label="关闭">✕</button>' +
       '<div class="dw-cat" style="color:' + c.color + '">' + c.name + '</div>' +
       '<div class="dw-title">' + esc(shop.name) + '</div>' +
-      (shop.badge || shop.rating ? '<div class="dw-badges">' + badgeHTML(shop) + '</div>' : '') +
       (shop.featured ? '<div class="dw-featured">' + esc(shop.featured) + '</div>' : '') +
       '<div class="dw-sub"><span>' + esc(shop.area) + '</span><span class="sep"></span>' +
         '<span>' + esc(shop.price) + '/人</span><span class="sep"></span>' +
         '<span>' + esc(shop.addr) + '</span></div>' +
+      srcStrip(shop) +
     '</div>' +
     '<div class="dw-body">' +
       '<div class="dw-sec"><h4>实拍' +
@@ -352,7 +389,17 @@ function openDrawer(shop) {
       '<div class="dw-sec"><h4>为什么值得去</h4><div class="dw-desc">' + esc(shop.desc) + '</div></div>' +
       '<div class="dw-sec"><h4>必点</h4><div class="sig-list">' +
         shop.sig.map(s => '<span class="sig-tag">' + esc(s) + '</span>').join('') + '</div></div>' +
-      '<div class="dw-sec"><h4>实用提醒</h4><div class="dw-tip">' + esc(shop.tip) + '</div></div>' +
+      '<div class="dw-sec"><h4>实用提醒</h4><div class="dw-tip">' + esc(shop.tip) + '</div>' +
+        (function () {
+          const a = amapOf(shop);
+          if (!a) return '';
+          const bits = [];
+          if (a.cost) bits.push('人均 ¥' + a.cost);
+          if (a.open) bits.push('营业 ' + a.open);
+          if (!bits.length) return '';
+          return '<div class="dw-open">高德标注：' + esc(bits.join(' · ')) + '（以现场为准）</div>';
+        })() +
+      '</div>' +
       '<div class="dw-sec"><h4>谁吃过这家</h4>' +
         (shop.visited && shop.visited.length
           ? shop.visited.map(v => {
@@ -375,13 +422,26 @@ function openDrawer(shop) {
                 '</div>' +
               '</div>';
             }).join('')
-          : '<div class="dw-tip">暂未核到有博主单独探过这家。下面的搜索按钮可以直接查最新结果。</div>') +
+          : '<div class="dw-tip">' + (moreVideos(shop).length
+              ? '站内收录的 9 位博主里没核到单独探过这家；下面「其他公开探店视频」里有 B 站上点名这家的片段。'
+              : '暂未核到有博主单独探过这家。下面的搜索按钮可以直接查最新结果。') + '</div>') +
         '<div class="must-state ' + (shop.badge ? 'in' : 'out') + '">' +
           (shop.badge
             ? '★ 大众点评 2025 必吃榜 · 在榜'
             : '大众点评 2025 必吃榜 · 未上榜（顺德区共 15 家）') +
         '</div>' +
       '</div>' +
+      (moreVideos(shop).length
+        ? '<div class="dw-sec"><h4>其他公开探店视频</h4>' +
+            '<div class="hint" style="margin-bottom:10px">这几位不在站内收录的 9 位博主里，是 B 站上标题直接点名这家店的公开视频，按播放量排。</div>' +
+            moreVideos(shop).map(v =>
+              '<a class="verified" href="' + v.url + '" target="_blank" rel="noopener">' +
+                '<div class="vp">BILIBILI · ' + v.date + ' · 播放 ' + fmtView(v.view) + '</div>' +
+                '<div class="vt">' + esc(v.title) + '</div>' +
+                '<div class="vn">UP 主：' + esc(v.up) + '</div>' +
+              '</a>').join('') +
+          '</div>'
+        : '') +
       '<div class="dw-sec"><h4>去之前</h4>' +
         '<div class="link-grid">' +
           '<a class="link-btn primary" href="' + amapNavLink(shop) + '" target="_blank" rel="noopener">' +

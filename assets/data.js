@@ -312,6 +312,7 @@ const SHOPS = [
     lat: 22.748633, lng: 113.26597,
     kw: '猪肉婆私房菜 容桂',
     visited: [
+      { name: '大兵探店', cid: 'dabing', platform: 'bilibili', note: '「顺德最出名餐饮店，猪肉婆私房菜，她真能代表顺德私房菜天花板？」2022-09-27，4.1 万播放', url: 'https://www.bilibili.com/video/BV1hD4y117hT' },
       { name: '庞师不是师', cid: 'pangshi', platform: 'douyin', note: '据你给的信息探过这家；B 站和抖音两轮检索都没找到点名这家店的视频，这里给的是平台搜索入口，不是视频', url: 'https://www.douyin.com/search/%E5%BA%9E%E5%B8%88%E4%B8%8D%E6%98%AF%E5%B8%88%20%E7%8C%AA%E8%82%89%E5%A9%86' }
     ]
   },
@@ -383,7 +384,10 @@ const SHOPS = [
     desc: '30 多款煲仔饭的本地人饭堂，米饭粒粒金香，饭焦脆口金黄。黄鳝那份是招牌，鳝肉嫩滑，锅巴才是灵魂。',
     tip: '现点现做要等 30 分钟，错峰来',
     lat: 22.757611, lng: 113.26618,
-    kw: '红星光发煲仔饭 容桂'
+    kw: '红星光发煲仔饭 容桂',
+    visited: [
+      { name: '大兵探店', cid: 'dabing', platform: 'bilibili', note: '「被誉为顺德顶级煲仔饭，始创于1984年，独栋楼房全部坐满顺德人」2022-10-09，11.6 万播放。简介原话写「红星光发煲仔饭…始创于1984年」，没写是总店还是分店', url: 'https://www.bilibili.com/video/BV1hg411h79S' }
+    ]
   },
   {
     id: 'wenhua',
@@ -409,7 +413,10 @@ const SHOPS = [
     desc: '本地人常去的早茶 OG，茶点现点现做，比网红店实惠也正宗。虾饺皮薄馅足，整只鲜虾弹牙；伦教糕发酵到位，米香很正。',
     tip: '早茶、午茶都合适，节假日得早点占位',
     lat: 22.840814, lng: 113.270517,
-    kw: '顺德人家 太艮路 大良'
+    kw: '顺德人家 太艮路 大良',
+    visited: [
+      { name: '大兵探店', cid: 'dabing', platform: 'bilibili', note: '「顺德性价比最高的茶楼，早茶比广州实惠太多了」2022-10-06，5.2 万播放。标题没点名，简介写「顺德人家食府」，没写是哪家门店，跟太艮路店是不是同一家待核', url: 'https://www.bilibili.com/video/BV1Ae4y167RK' }
+    ]
   },
   {
     id: 'dabanqiao',
