@@ -21,9 +21,14 @@ const ANCHORS = [
   ['均安', 22.7480, 113.1180]
 ];
 
-const state = { cat: 'all', area: 'all', q: '', activeId: null, focusId: null, satellite: false, view: 'map', creator: 'all' };
+const state = {
+  cat: 'all', area: 'all', q: '', activeId: null, focusId: null,
+  satellite: false, view: 'map', creator: 'all',
+  origin: null, radius: 0, nearSort: false   // 出发点 / 距离筛选(km) / 按远近排
+};
 
 let map = null, markerLayer = null, anchorLayer = null, activeTileLayer = null, focusLayer = null;
+let originLayer = null;
 let markers = {};
 const catMap = Object.fromEntries(CATEGORIES.map(c => [c.id, c]));
 
@@ -40,7 +45,7 @@ function hexA(hex, a) {
 }
 function filtered() {
   const q = normalize(state.q);
-  const list = SHOPS.filter(s => {
+  let list = SHOPS.filter(s => {
     if (state.cat !== 'all' && s.cat !== state.cat) return false;
     if (state.area !== 'all' && s.area !== state.area) return false;
     if (state.creator !== 'all' && !(s.visited || []).some(v => v.cid === state.creator)) return false;
@@ -51,7 +56,17 @@ function filtered() {
       s.featured || '', who, s.kw || '', s.navKw || '', s.tip || ''].join(' '));
     return hay.includes(q);
   });
-  // 按镇街聚拢，逛起来不用来回横跳
+  // 设了出发点、又选了距离，就只留这个圈里的
+  if (state.origin && state.radius > 0) {
+    list = list.filter(s => distKm(state.origin, s) <= state.radius);
+  }
+  // 按镇街聚拢，逛起来不用来回横跳；要看「离我最近」就改成按距离排
+  if (state.origin && state.nearSort) {
+    return list
+      .map((s, i) => ({ s, i, d: distKm(state.origin, s) }))
+      .sort((a, b) => (a.d - b.d) || (a.i - b.i))
+      .map(x => x.s);
+  }
   const order = Object.fromEntries(AREAS.map((a, i) => [a, i]));
   return list
     .map((s, i) => ({ s, i }))
@@ -142,6 +157,7 @@ function initMap() {
 
   addAnchors();
   renderAll();
+  drawOrigin();
 }
 
 function fitTo(list) {
@@ -243,21 +259,34 @@ function renderList(list) {
 
   if (!list.length) {
     // 空结果别只丢一句「没找到」：给几家招牌店垫底，再给一个一键清空筛选的出口
-    const sug = SHOPS.filter(s => s.badge || s.rating).slice(0, 3);
+    // 只看距离这一条把人都筛没了，才用「最近的一家在 X 外」这句；
+    // 叠着搜索词或分类时，空的原因可能是别的，别把话说死
+    const nearEmpty = state.origin && state.radius > 0 &&
+      !state.q && state.cat === 'all' && state.area === 'all' &&
+      (!state.creator || state.creator === 'all');
+    const byNear = nearEmpty
+      ? SHOPS.slice().sort((a, b) => distKm(state.origin, a) - distKm(state.origin, b))
+      : null;
+    const nearest = byNear ? distKm(state.origin, byNear[0]) : null;
+    const sug = byNear ? byNear.slice(0, 3) : SHOPS.filter(s => s.badge || s.rating).slice(0, 3);
     box.innerHTML = '<div class="empty">' +
-      (state.q ? '没找到「' + esc(state.q) + '」这家店。<br>换个关键词试试，或者先看看这几家：'
-               : '这个筛选下没有店。<br>把条件放宽一点，或者看看这几家：') +
+      (nearEmpty
+        ? state.radius + ' km 内没有收录的店。<br>最近的一家在 ' + fmtDist(nearest) + ' 外：'
+        : state.q ? '没找到「' + esc(state.q) + '」这家店。<br>换个关键词试试，或者先看看这几家：'
+                  : '这个筛选下没有店。<br>把条件放宽一点，或者看看这几家：') +
       '<div class="empty-sug">' + sug.map(s =>
         '<button class="empty-shop" type="button" data-open="' + s.id + '">' +
           esc(s.name) + '<span>' + esc(s.area) + '</span></button>').join('') +
       '</div>' +
-      '<button class="empty-reset" type="button">清除筛选，看全部 ' + SHOPS.length + ' 家</button>' +
+      (nearEmpty ? '<button class="empty-reset" type="button" data-geo-off>不限距离，按离我最近排</button>'
+                 : '<button class="empty-reset" type="button">清除筛选，看全部 ' + SHOPS.length + ' 家</button>') +
     '</div>';
     return;
   }
 
   box.innerHTML = list.map((shop, i) => {
     const c = catMap[shop.cat];
+    const d = distOf(shop);
     return '<div class="item' + (shop.id === state.activeId ? ' on' : '') + '" data-id="' + shop.id + '">' +
       '<div class="item-top">' +
         '<div class="item-no" style="background:' + c.color + '">' + (i + 1) + '</div>' +
@@ -270,6 +299,7 @@ function renderList(list) {
           '</svg>导航</a>' +
       '</div>' +
       '<div class="item-meta">' +
+        (d != null ? '<span class="dist-chip">距你 ' + fmtDist(d) + '</span>' : '') +
         '<span class="tagcat" style="background:' + hexA(c.color, .12) + ';color:' + c.color + '">' + c.name + '</span>' +
         '<span>' + esc(shop.area) + '</span>' +
         badgeHTML(shop) +
@@ -364,6 +394,195 @@ function clearFocus() {
   document.querySelectorAll('.mk.is-focus').forEach(el => el.classList.remove('is-focus'));
 }
 
+/* ---------------- 我现在在哪：定位 / 直线距离 ---------------- */
+const GEO_KEY = 'shunde.origin.v1';
+let locating = false;      // 正在等浏览器的定位结果
+let pickHandler = null;    // 「点地图选位置」临时挂上的点击回调
+
+/* 两点间直线距离（球面大圆距离），单位公里。只用来排序和筛，不是路线长度 */
+function distKm(a, b) {
+  const rad = d => d * Math.PI / 180;
+  const dLat = rad(b.lat - a.lat), dLng = rad(b.lng - a.lng);
+  const h = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+  return 2 * 6371 * Math.asin(Math.min(1, Math.sqrt(h)));
+}
+
+function fmtDist(km) {
+  if (km == null) return '';
+  if (km < 1) return Math.round(km * 1000) + ' m';
+  if (km < 10) return km.toFixed(1) + ' km';
+  return Math.round(km).toLocaleString('zh-CN') + ' km';
+}
+
+function distOf(shop) {
+  return state.origin ? distKm(state.origin, shop) : null;
+}
+
+/* 位置存在本机 localStorage，不上传；下次打开接着用，不用重新定位 */
+function saveGeo() {
+  try {
+    localStorage.setItem(GEO_KEY, JSON.stringify({
+      o: state.origin, r: state.radius, s: state.nearSort
+    }));
+  } catch (e) { /* 隐私模式不给存就算了，不影响本次使用 */ }
+}
+function loadGeo() {
+  try {
+    const raw = localStorage.getItem(GEO_KEY);
+    if (!raw) return;
+    const d = JSON.parse(raw);
+    if (d && d.o && isFinite(d.o.lat) && isFinite(d.o.lng)) {
+      const r = +d.r;
+      state.origin = { lat: +d.o.lat, lng: +d.o.lng };
+      state.radius = [0, 2, 5, 10].includes(r) ? r : 0;   // 只认这四档，别被手改的值卡住
+      state.nearSort = !!d.s;
+    }
+  } catch (e) { /* 坏数据当没存过 */ }
+}
+
+/* 地图上的「我」：蓝点 + 名字；选了距离再套一个虚线圈 */
+function drawOrigin() {
+  if (!map) return;
+  if (!originLayer) originLayer = L.layerGroup().addTo(map);
+  originLayer.clearLayers();
+  if (!state.origin) return;
+  const { lat, lng } = state.origin;
+  L.marker([lat, lng], {
+    icon: L.divIcon({
+      className: 'me-wrap',
+      html: '<div class="me-pulse"></div><div class="me-dot"></div><div class="me-lbl">我的位置</div>',
+      iconSize: [0, 0], iconAnchor: [0, 0]
+    }),
+    interactive: false, keyboard: false, zIndexOffset: 1800
+  }).addTo(originLayer);
+  if (state.radius > 0) {
+    L.circle([lat, lng], {
+      radius: state.radius * 1000, color: '#2563EB', weight: 1.5,
+      dashArray: '6 6', fillColor: '#2563EB', fillOpacity: .05, interactive: false
+    }).addTo(originLayer);
+  }
+}
+
+let pendingOriginFly = false;   // 手机在列表栏定位时地图是隐藏的，等切到地图栏再飞
+
+function flyToOrigin() {
+  if (!map || !state.origin) return;
+  const size = map.getSize();
+  if (!size || !size.x || !size.y) { pendingOriginFly = true; return; }   // 隐藏状态下飞会算出 NaN
+  pendingOriginFly = false;
+  try {
+    map.flyTo([state.origin.lat, state.origin.lng], Math.max(map.getZoom(), 15), { duration: .8 });
+  } catch (e) { /* 地图还没准备好，这次不飞 */ }
+}
+
+function setOrigin(latlng) {
+  state.origin = { lat: +latlng.lat, lng: +latlng.lng };
+  saveGeo();
+  endPick();
+  renderGeoBar();
+  renderAll();
+  drawOrigin();
+  // 站在顺德境内才把地图拉过去；人在外地的电脑上点「定位」不该把地图甩到一千公里外
+  if (map && distKm(state.origin, { lat: CONFIG.center[0], lng: CONFIG.center[1] }) < 40) {
+    flyToOrigin();
+  }
+}
+
+function locateMe() {
+  if (locating) return;
+  if (!navigator.geolocation) { startPick('这个浏览器不给定位'); return; }
+  locating = true;
+  renderGeoBar();
+  navigator.geolocation.getCurrentPosition(
+    p => {
+      locating = false;
+      setOrigin({ lat: p.coords.latitude, lng: p.coords.longitude });
+    },
+    err => {
+      locating = false;
+      renderGeoBar();
+      // 微信内置浏览器、http 页面、拒绝过权限都会走到这里 —— 直接请他自己点一个
+      const why = err && err.code === 1 ? '浏览器没给定位权限'
+        : err && err.code === 3 ? '定位超时'
+        : '没拿到当前位置';
+      startPick(why);
+    },
+    { enableHighAccuracy: false, timeout: 10000, maximumAge: 600000 }
+  );
+}
+
+/* 点地图选出发点。手机上这时得先切到地图那一栏，不然点了也没反应 */
+function startPick(msg) {
+  if (!map) return;
+  const tabs = document.querySelector('.mobile-tabs');
+  const onPhone = tabs && getComputedStyle(tabs).display !== 'none';
+  if (onPhone) {
+    const b = tabs.querySelector('button[data-view="map"]');
+    if (b) b.click();
+    closeDrawer();
+  }
+  endPick();
+  const hint = document.getElementById('pickHint');
+  if (hint) {
+    hint.querySelector('.ph-txt').textContent =
+      (msg ? msg + '，' : '') + '在地图上点一下，当作出发点';
+    hint.hidden = false;
+  }
+  const c = map.getContainer();
+  c.classList.add('picking');
+  pickHandler = e => setOrigin(e.latlng);
+  map.on('click', pickHandler);
+}
+
+function endPick() {
+  const hint = document.getElementById('pickHint');
+  if (hint) hint.hidden = true;
+  if (map) {
+    map.getContainer().classList.remove('picking');
+    if (pickHandler) { map.off('click', pickHandler); pickHandler = null; }
+  }
+}
+
+/* 列表上方那条：没定位时是入口，定位后是距离筛选 */
+function renderGeoBar() {
+  const bar = document.getElementById('geoBar');
+  if (!bar) return;
+  const meBtn = document.getElementById('meBtn');
+  if (meBtn) meBtn.hidden = !state.origin;
+  if (!state.origin) {
+    bar.className = 'geo-bar';
+    bar.innerHTML =
+      '<div class="geo-row">' +
+        '<button class="geo-set" id="geoSet" type="button">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" ' +
+            'stroke-linecap="round" stroke-linejoin="round">' +
+            '<path d="M12 21s-7-6.2-7-11a7 7 0 1 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.6"/></svg>' +
+          (locating ? '正在定位…' : '定位我的位置，按远近找店') +
+        '</button>' +
+        '<button class="geo-pick" id="geoPick" type="button" title="不方便开定位时，直接在地图上点一个位置">地图上选</button>' +
+      '</div>';
+    return;
+  }
+  const far = distKm(state.origin, { lat: CONFIG.center[0], lng: CONFIG.center[1] });
+  bar.className = 'geo-bar has';
+  bar.innerHTML =
+    '<div class="geo-row">' +
+      '<button class="geo-sort' + (state.nearSort ? ' on' : '') + '" id="geoSort" type="button" ' +
+        'aria-pressed="' + (state.nearSort ? 'true' : 'false') + '">离我最近</button>' +
+      '<span class="geo-note">' + (far > 40
+        ? '你现在离顺德约 ' + fmtDist(far)
+        : '直线距离，不含路线') + '</span>' +
+      '<button class="geo-x" id="geoClear" type="button" aria-label="清除位置" title="清除位置">✕</button>' +
+    '</div>' +
+    '<div class="geo-row wrap">' +
+      [0, 2, 5, 10].map(km =>
+        '<button class="geo-chip' + (state.radius === km ? ' on' : '') + '" data-km="' + km + '" type="button">' +
+          (km ? km + 'km内' : '不限') + '</button>').join('') +
+      '<button class="geo-again" id="geoAgain" type="button" title="重新定位；拿不到位置就改成在地图上点">重定位</button>' +
+    '</div>';
+}
+
 /* ---------------- 抽屉 ---------------- */
 function openDrawer(shop) {
   const c = catMap[shop.cat];
@@ -449,6 +668,10 @@ function openDrawer(shop) {
           '</div>'
         : '') +
       '<div class="dw-sec"><h4>去之前</h4>' +
+        (state.origin
+          ? '<div class="dw-dist">📍 距你 <b>' + fmtDist(distOf(shop)) + '</b>' +
+            '<span>直线距离，不是路线长度</span></div>'
+          : '') +
         '<div class="link-grid">' +
           '<a class="link-btn primary" href="' + amapNavLink(shop) + '" target="_blank" rel="noopener">' +
             '<span class="lg">德</span>高德地图导航</a>' +
@@ -557,6 +780,7 @@ function switchView(v) {
   document.querySelectorAll('.vtab').forEach(b => b.classList.toggle('on', b.dataset.view === v));
   const isMust = v === 'must';
   document.getElementById('filtersBox').hidden = isMust;
+  document.getElementById('geoBar').hidden = isMust;
   document.getElementById('listHead').hidden = isMust;
   document.getElementById('list').hidden = isMust;
   document.getElementById('mustlist').hidden = !isMust;
@@ -582,6 +806,8 @@ function renderAll() {
   const list = filtered();
   renderList(list);
   renderMarkers(list);
+  const sl = document.getElementById('sortLbl');
+  if (sl) sl.textContent = (state.origin && state.nearSort) ? '按离你距离排序' : '按街区排序';
   // 首屏不 fit：50 家跨六个镇街，fit 出来会缩到广州去。
   // 榜单视图下地图只是背景，更不能 fit；没筛选时也回到顺德中心，别让地图乱跑。
   if (!firstRender) {
@@ -599,6 +825,9 @@ function renderAll() {
 // 空结果里那个按钮：三个筛选 + 搜索框一起归零，按钮高亮也跟着复原
 function resetAll() {
   state.cat = 'all'; state.area = 'all'; state.creator = 'all'; state.q = '';
+  // 距离档也算一层筛选，一起放开；但出发点（蓝点）留着，不然又得重新定位
+  state.radius = 0;
+  saveGeo(); renderGeoBar(); drawOrigin();
   const q = document.getElementById('q');
   if (q) q.value = '';
   const c = document.getElementById('clr');
@@ -705,6 +934,13 @@ function bind() {
 
   // 列表点击（事件委托，重渲染也不会丢）
   document.getElementById('list').addEventListener('click', e => {
+    // 距离筛出来是空的：那个按钮只放开距离，改成就近排序
+    if (e.target.closest('[data-geo-off]')) {
+      state.radius = 0;
+      state.nearSort = true;
+      saveGeo(); renderGeoBar(); renderAll(); drawOrigin();
+      return;
+    }
     // 空结果里的「清除筛选」：把三个筛选和搜索框一起复位
     if (e.target.closest('.empty-reset')) { resetAll(); return; }
     // 导航键是新窗口跳转、实拍图是开灯箱，都不抢卡片的选中行为
@@ -750,6 +986,34 @@ function bind() {
     fitTo(filtered());
   });
 
+  // 定位 / 距离：整条 geoBar 用事件委托，条子里的按钮会被重画，一个个绑会丢
+  const geoBar = document.getElementById('geoBar');
+  renderGeoBar();
+  geoBar.addEventListener('click', e => {
+    const t = e.target.closest('button');
+    if (!t) return;
+    if (t.id === 'geoSet' || t.id === 'geoAgain') { locateMe(); return; }
+    if (t.id === 'geoPick') { startPick(''); return; }
+    if (t.id === 'geoClear') {
+      state.origin = null; state.radius = 0; state.nearSort = false;
+      saveGeo(); renderGeoBar(); renderAll(); drawOrigin();
+      return;
+    }
+    if (t.id === 'geoSort') {
+      state.nearSort = !state.nearSort;
+      saveGeo(); renderGeoBar(); renderAll();
+      return;
+    }
+    if (t.dataset.km !== undefined) {
+      state.radius = +t.dataset.km;
+      saveGeo(); renderGeoBar(); renderAll(); drawOrigin();
+    }
+  });
+  document.getElementById('pickCancel').addEventListener('click', endPick);
+
+  // 地图上那个「回到我的位置」小圆钮，只有定位过才露出来
+  document.getElementById('meBtn').addEventListener('click', flyToOrigin);
+
   // 信源弹层
   const sheet = document.getElementById('sheet');
   const mask = document.getElementById('mask');
@@ -767,12 +1031,14 @@ function bind() {
       document.querySelectorAll('.mobile-tabs button').forEach(x => x.classList.remove('on'));
       b.classList.add('on');
       layout.classList.toggle('show-map', b.dataset.view === 'map');
+      if (b.dataset.view !== 'map') endPick();   // 离开地图就等于放弃这次选点
       if (b.dataset.view === 'map' && map) {
         // 从列表切过来时地图才有尺寸；刚在列表里点过的那家，这时候再飞过去并点上光圈
         setTimeout(() => {
           map.invalidateSize();
           const s = SHOPS.find(x => x.id === state.focusId);
           if (s) setFocus(s);
+          else if (pendingOriginFly) flyToOrigin();   // 在列表栏定的位，这时候再拉过去
         }, 80);
       }
     });
@@ -780,7 +1046,7 @@ function bind() {
 
   // ESC
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') { closeDrawer(); closeSheet(); }
+    if (e.key === 'Escape') { closeDrawer(); closeSheet(); endPick(); }
   });
 }
 
@@ -888,6 +1154,7 @@ document.addEventListener('DOMContentLoaded', () => {
   syncStats();
   renderSrcSheet();
 
+  loadGeo();          // 上次定位的点、距离筛选，接着用
   bind();
   initMap();
 

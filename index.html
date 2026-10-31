@@ -74,8 +74,11 @@
       <div class="creators" id="creators"></div>
     </div>
 
+    <!-- 定位 / 距离：没定位时是入口，定位后变成距离筛选 -->
+    <div class="geo-bar" id="geoBar"></div>
+
     <div class="list-head" id="listHead">
-      <span>共 <b id="cnt">52</b> 家 · 按街区排序</span>
+      <span>共 <b id="cnt">52</b> 家 · <span id="sortLbl">按街区排序</span></span>
       <button class="sort-btn" id="videoBtn">看博主视频 →</button>
     </div>
 
@@ -89,9 +92,16 @@
 
     <div class="maptools">
       <div class="tool-group">
+        <button class="tool" id="meBtn" title="回到我的位置" hidden>◎</button>
         <button class="tool" id="tileBtn" title="切换卫星图">卫</button>
         <button class="tool" id="resetBtn" title="回到顺德全境">⌂</button>
       </div>
+    </div>
+
+    <!-- 点地图选出发点时的提示条 -->
+    <div class="pick-hint" id="pickHint" hidden>
+      <span class="ph-txt">在地图上点一下，当作出发点</span>
+      <button type="button" id="pickCancel">取消</button>
     </div>
 
     <div class="legend" id="legend"></div>
