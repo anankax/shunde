@@ -99,8 +99,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
 .chip.on .dot{background:#fff!important}
 
-.areas{display:flex;gap:5px;margin-top:9px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
-.areas::-webkit-scrollbar{display:none}
+.areas{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px;padding-bottom:2px}
 .area-btn{
   flex-shrink:0;height:26px;padding:0 9px;border-radius:7px;
   font-size:12px;color:var(--ink-3);background:transparent;transition:.15s;
@@ -109,8 +108,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .area-btn.on{background:var(--brand-soft);color:var(--brand);font-weight:600}
 
 /* 博主筛选 */
-.creators{display:flex;gap:5px;margin-top:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
-.creators::-webkit-scrollbar{display:none}
+.creators{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;padding-bottom:2px}
 .creators::before{
   content:"博主";flex-shrink:0;font-size:10px;color:var(--ink-3);
   letter-spacing:1px;align-self:center;padding-right:2px;
@@ -460,6 +458,9 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
   .mobile-tabs button.on{background:#fff;color:var(--ink)}
   .legend{display:none}
   .drawer{width:100%;max-width:100%;border-radius:0}
+  /* 手机上这两排照旧横滑（手指能划），桌面没有触摸就换行，不能让它被裁在右边 */
+  .areas,.creators{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+  .areas::-webkit-scrollbar,.creators::-webkit-scrollbar{display:none}
   .list{padding-bottom:90px}
   .maptools{top:10px;right:10px}
 }
@@ -691,3 +692,43 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
   transition:.15s;
 }
 .must-card.clickable:hover .must-arrow{opacity:1;color:var(--brand)}
+/* ============ 选中店铺：地图上那一圈蓝色定位光 ============ */
+.focus-wrap{background:none;border:none;pointer-events:none}
+.focus-glow{
+  position:absolute;left:-48px;top:-48px;width:96px;height:96px;border-radius:50%;
+  background:radial-gradient(circle,rgba(37,99,235,.30) 0%,rgba(37,99,235,.12) 52%,rgba(37,99,235,0) 72%);
+}
+.focus-ring{
+  position:absolute;left:-36px;top:-36px;width:72px;height:72px;border-radius:50%;
+  border:3.5px solid #2563EB;
+  box-shadow:0 0 0 2px rgba(255,255,255,.95),0 0 12px rgba(37,99,235,.45);
+  animation:focusPulse 1.8s ease-out infinite;
+}
+.focus-ring.r2{animation-delay:.9s}
+.focus-dot{
+  position:absolute;left:-8px;top:-8px;width:16px;height:16px;border-radius:50%;
+  background:#2563EB;border:3px solid #fff;
+  box-shadow:0 2px 8px rgba(37,99,235,.55);
+}
+.focus-name{
+  position:absolute;left:0;bottom:46px;transform:translateX(-50%);
+  white-space:nowrap;padding:5px 12px;border-radius:9px;
+  background:#2563EB;color:#fff;font-size:12.5px;font-weight:700;letter-spacing:.2px;
+  box-shadow:0 4px 14px rgba(37,99,235,.35);
+}
+.focus-name::after{
+  content:"";position:absolute;left:50%;top:100%;margin-left:-6px;
+  border:6px solid transparent;border-top-color:#2563EB;
+}
+@keyframes focusPulse{
+  0%{transform:scale(.45);opacity:.95}
+  70%{transform:scale(1.45);opacity:0}
+  100%{transform:scale(1.45);opacity:0}
+}
+@media (prefers-reduced-motion:reduce){
+  .focus-ring{animation:none;transform:scale(.85);opacity:.95}
+}
+.mk.is-focus{
+  transform:rotate(-45deg) scale(1.28);
+  box-shadow:0 0 0 3px rgba(37,99,235,.45),0 3px 12px rgba(42,38,34,.45);
+}

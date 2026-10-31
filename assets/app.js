@@ -23,7 +23,7 @@ const ANCHORS = [
 
 const state = { cat: 'all', area: 'all', q: '', activeId: null, satellite: false, view: 'map', creator: 'all' };
 
-let map = null, markerLayer = null, anchorLayer = null, activeTileLayer = null;
+let map = null, markerLayer = null, anchorLayer = null, activeTileLayer = null, focusLayer = null;
 let markers = {};
 const catMap = Object.fromEntries(CATEGORIES.map(c => [c.id, c]));
 
@@ -125,6 +125,7 @@ function initMap() {
   });
 
   anchorLayer = L.layerGroup().addTo(map);
+  focusLayer = L.layerGroup().addTo(map);
 
   // 有聚合插件就聚合，没有就老老实实铺点
   if (typeof L.markerClusterGroup === 'function') {
@@ -264,10 +265,52 @@ function activate(id) {
     box.scrollTop += (r.top - br.top) - (box.clientHeight - el.offsetHeight) / 2;
   }
 
-  if (map) {
-    map.flyTo([shop.lat, shop.lng], 15, { duration: .75 });
-  }
+  setFocus(shop);
   openDrawer(shop);
+}
+
+/* 选中一家店：直接拉到街道级，并在那个点上打一圈会呼吸的蓝色光圈 + 店名条。
+   15 级时店只是一颗和周围几十颗一样的小图钉，看不出「定位到哪了」，所以拉到 17。 */
+function setFocus(shop) {
+  if (!map) return;
+  if (!focusLayer) focusLayer = L.layerGroup().addTo(map);
+  focusLayer.clearLayers();
+  document.querySelectorAll('.mk.is-focus').forEach(el => el.classList.remove('is-focus'));
+
+  // 放大之后这家店才从聚合里散出来，所以缩放停了再补一次高亮
+  const markDot = () => {
+    if (state.activeId !== shop.id) return;   // 连点两家时，前一次的回调别来抢高亮
+    const mk = markers[shop.id];
+    const el = mk && mk.getElement ? mk.getElement() : null;   // 聚合里的店还没有 DOM
+    const dot = el ? el.querySelector('.mk') : null;
+    if (dot) dot.classList.add('is-focus');
+  };
+  markDot();
+  map.once('moveend', markDot);
+
+  L.marker([shop.lat, shop.lng], {
+    icon: L.divIcon({
+      className: 'focus-wrap',
+      html: '<div class="focus-glow"></div>' +
+            '<div class="focus-ring"></div>' +
+            '<div class="focus-ring r2"></div>' +
+            '<div class="focus-dot"></div>' +
+            '<div class="focus-name">' + esc(shop.name) + '</div>',
+      iconSize: [0, 0], iconAnchor: [0, 0]
+    }),
+    interactive: false, keyboard: false, zIndexOffset: 1500
+  }).addTo(focusLayer);
+
+  // 抽屉盖住右边一条，把店挪到剩下那块的正中，别让它躲在抽屉底下
+  const dw = document.getElementById('drawer');
+  const shift = (dw && window.innerWidth > 760) ? Math.round(dw.offsetWidth / 2) : 0;
+  const p = map.project(L.latLng(shop.lat, shop.lng), 17).add([shift, 0]);
+  map.flyTo(map.unproject(p, 17), 17, { duration: .8 });
+}
+
+function clearFocus() {
+  if (focusLayer) focusLayer.clearLayers();
+  document.querySelectorAll('.mk.is-focus').forEach(el => el.classList.remove('is-focus'));
 }
 
 /* ---------------- 抽屉 ---------------- */
@@ -365,6 +408,7 @@ function openDrawer(shop) {
 function closeDrawer() {
   document.getElementById('drawer').classList.remove('open');
   state.activeId = null;
+  clearFocus();
   document.querySelectorAll('.item').forEach(el => el.classList.remove('on'));
 }
 
